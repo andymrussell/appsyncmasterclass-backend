@@ -1,0 +1,57 @@
+name: appsyncmasterclass
+schema: schema.api.graphql
+authenticationType: AMAZON_COGNITO_USER_POOLS
+userPoolConfig:
+  awsRegion: eu-west-1
+  defaultAction: ALLOW
+  userPoolId: !Ref CognitoUserPool
+mappingTemplatesLocation: mapping-templates
+mappingTemplates:
+  - type: Query
+    field: getMyProfile
+    dataSource: usersTable
+
+  - type: Query
+    field: getTweets
+    dataSource: tweetsTable
+
+  - type: Query
+    field: getImageUploadUrl
+    dataSource: getImageUploadUrlFunction
+    request: false
+    response: false
+
+  - type: Mutation
+    field: editMyProfile
+    dataSource: usersTable
+  - type: Mutation
+    field: tweet
+    dataSource: tweetFunction
+    request: false
+    response: false
+
+# Nested Resolvers
+  - type: Tweet
+    field: profile
+    dataSource: usersTable
+
+dataSources:
+  - type: NONE
+    name: none
+  - type: AMAZON_DYNAMODB
+    name: usersTable
+    config:
+      tableName: !Ref UsersTable
+  - type: AMAZON_DYNAMODB
+    name: tweetsTable
+    config:
+      tableName: !Ref TweetsTable
+  - type: AWS_LAMBDA
+    name: getImageUploadUrlFunction
+    config:
+      functionName: getImageUploadUrl
+  - type: AWS_LAMBDA
+    name: tweetFunction
+    config:
+      functionName: tweet
+      
